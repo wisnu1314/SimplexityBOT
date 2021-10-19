@@ -27,8 +27,13 @@ class LocalSearch:
             neighbors.append([(j, batasKanan - (j-i)) for j in range(i, i+4)])
         return neighbors
 
-    def is_diagonal(self, point1,point2):
-        return ((point1.x + 1 == point2.x and point1.y + 1 == point2.y) or (point1.x - 1 == point2.x and point1.y + 1 == point2.y) or (point1.x + 1 == point2.x and point1.y - 1 == point2.y) or (point1.x - 1 == point2.x and point1.y - 1 == point2.y))
+    def is_diagonal(self, point1: Tuple[int, int],point2: Tuple[int, int]):
+        return ((point1[0] + 1 == point2[0] and point1[1] + 1 == point2[1]) or (point1[0] - 1 == point2[0] and point1[1] + 1 == point2[1]) or (point1[0] + 1 == point2[0] and point1[1] - 1 == point2[1]) or (point1[0] - 1 == point2[0] and point1[1] - 1 == point2[1]))
+    
+    def total_point(self,c1,c2,c3,c4,c5,c6,c7):
+        return (c1+c2+c3+(2*c4)+(2*c5)+c6+c7)
+        
+
     
     def is_check(self, point1,point2,point3):
         Cond_diagonal = False
