@@ -54,7 +54,7 @@ class LocalSearch:
         and point2[0] == point3[0] - 1 and point3[0] == point4[0] - 1):
             return True
         elif()
-    
+        
 
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
