@@ -33,9 +33,14 @@ class LocalSearch:
     def total_point(self,c1,c2,c3,c4,c5,c6,c7):
         return (c1+c2+c3+(2*c4)+(2*c5)+c6+c7)
         
+    def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
+        self.thinking_time = time() + thinking_time
 
+        best_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
+
+        return best_movement
     
-    def is_check(self, point1,point2,point3):
+'''    def is_check(self, point1,point2,point3):
         Cond_diagonal = False
         Cond_vertikal = False
         Cond_horizontal = False
@@ -59,14 +64,7 @@ class LocalSearch:
         and point2[0] == point3[0] - 1 and point3[0] == point4[0] - 1):
             return True
         elif()
-        
-
-    def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
-        self.thinking_time = time() + thinking_time
-
-        best_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
-
-        return best_movement
+        '''
 
             
             
