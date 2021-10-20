@@ -3,7 +3,7 @@ import copy
 from time import time
 from math import inf as infinity
 
-from src.constant import ShapeConstant
+from src.constant import ShapeConstant, ColorConstant
 from src.model import State
 from src.utility import place
 from collections import Counter
@@ -24,39 +24,74 @@ class Minimax:
                         movement_lists.append((i, key))
         return movement_lists
 
-    def minimax_decision(self, state: State, n_player: int, depth: int):
-        all_movements = self.all_movements(state, n_player)
-        next_player = (n_player + 1) % 2
-        if len(all_movements) > 0:
-            movement_choosed = all_movements[0]
-            for movement in all_movements:
-                if self.max_value(self.apply_movement(state, movement, next_player), depth + 1, next_player) > \
-                    self.max_value(self.apply_movement(state, movement_choosed, next_player), depth + 1, next_player):
-                    movement_choosed = movement       
-            return movement_choosed
+#    def minimax_decision(self, state: State, n_player: int, depth: int):
+#        all_movements = self.all_movements(state, n_player)
+#        next_player = (n_player + 1) % 2
+#        if len(all_movements) > 0:
+#            movement_choosed = all_movements[0]
+#            for movement in all_movements:
+#                if self.max_value(self.apply_movement(state, movement, next_player), depth + 1, next_player) > \
+#                    self.max_value(self.apply_movement(state, movement_choosed, next_player), depth + 1, next_player):
+#                    movement_choosed = movement
+#            return movement_choosed
     
+    def minimax_decision(self, state: State, n_player: int, cur_player: int, depth: int, alpha: int, beta: int):
+        if depth == 3:
+            return self.total_point(state, n_player)
+        if cur_player == n_player:
+            max_value = -infinity
+            all_movements = self.all_movements(state, cur_player)
+            next_player = (cur_player + 1) % 2
+            selected_movement = all_movements[0]
+            for movement in all_movements:
+                temp = self.minimax_decision(self.apply_movement(state, movement, cur_player), n_player, next_player, depth + 1, alpha, beta)
+                max_value = max(max_value, temp)
+                if(max_value == temp): selected_movement = movement
+                alpha = max(max_value, alpha)
+                if beta <= alpha: break
+            if depth == 0:
+                return selected_movement
+            else:
+                return max_value
+        else:
+            min_value = infinity
+            all_movements = self.all_movements(state, cur_player)
+            next_player = (cur_player + 1) % 2
+            for movement in all_movements:
+                temp = self.minimax_decision(self.apply_movement(state, movement, cur_player), n_player, next_player, depth + 1, alpha, beta)
+                min_value = min(min_value, temp)
+                beta = min(min_value, beta)
+                if beta <= alpha: break
+            return min_value
+
     def apply_movement(self, state: State, movement: Tuple[int, ShapeConstant], n_player: int):
         new_state = copy.deepcopy(state)
         place(new_state, n_player, movement[1], movement[0])
         return new_state
 
     def max_value(self, state: State, depth: int, n_player: int):
-        if depth == 4:
-            return self.total_point(state, n_player)
-        else:
-            next_player = (n_player + 1) % 2
-            temp = infinity
-            for movement in self.all_movements(state, n_player):
-                temp = max(temp, self.min_value(self.apply_movement(state, movement, next_player), depth + 1, next_player))
-            return temp
-    
-    def min_value(self, state: State, depth: int, n_player: int):
-        if depth == 4:
+        if depth == 3:
             return self.total_point(state, n_player)
         else:
             next_player = (n_player + 1) % 2
             temp = -infinity
             for movement in self.all_movements(state, n_player):
+    #            print("max-2")
+    #            print(n_player, movement, temp)
+                temp = max(temp, self.min_value(self.apply_movement(state, movement, next_player), depth + 1, next_player))
+            return temp
+    
+    def min_value(self, state: State, depth: int, n_player: int):
+        if depth == 3:
+    #        print("min-1")
+    #        print(n_player, self.total_point(state, n_player))
+            return self.total_point(state, n_player)
+        else:
+            next_player = (n_player + 1) % 2
+            temp = infinity
+            for movement in self.all_movements(state, n_player):
+    #            print("min-2")
+    #           print(n_player, movement, temp)
                 temp = min(temp, self.max_value(self.apply_movement(state, movement, next_player), depth + 1, next_player))
             return temp
 
@@ -119,9 +154,11 @@ class Minimax:
     def is_check3(self, state: State, point1: Tuple[int, int], point2: Tuple[int, int], point3: Tuple[int, int]):
         if(
             (state.board.__getitem__((point1[0], point1[1])).color == state.board.__getitem__((point2[0], point2[1])).color and
-            state.board.__getitem__((point2[0], point2[1])).color == state.board.__getitem__((point3[0], point3[1])).color) or
+            state.board.__getitem__((point2[0], point2[1])).color == state.board.__getitem__((point3[0], point3[1])).color and
+            state.board.__getitem__((point1[0], point1[1])).color != ColorConstant.BLACK) or
             (state.board.__getitem__((point1[0], point1[1])).shape == state.board.__getitem__((point2[0], point2[1])).shape and
-            state.board.__getitem__((point2[0], point2[1])).shape == state.board.__getitem__((point3[0], point3[1])).shape)
+            state.board.__getitem__((point2[0], point2[1])).shape == state.board.__getitem__((point3[0], point3[1])).shape and
+            state.board.__getitem__((point1[0], point1[1])).shape != ShapeConstant.BLANK)
         ):     
             if(
                 (self.is_horizontal(point1, point2) and self.is_horizontal(point2, point3)) or
@@ -298,8 +335,10 @@ class Minimax:
             state.board.__getitem__((point2[0], point2[1])).color == state.board.__getitem__((point3[0], point3[1])).color and
             state.board.__getitem__((point3[0], point3[1])).color == state.board.__getitem__((point4[0], point4[1])).color 
         ):
-            if(state.board.__getitem__((point1[0], point1[1])).color == state.players[n_player].color):
+            if(state.board.__getitem__((point1[0], point1[1])).color == state.players[self.player].color):
                 point += 10000
+            elif(state.board.__getitem__((point1[0], point1[1])).color == ColorConstant.BLACK):
+                point += 0
             else:
                 point -= 10000
         elif(
@@ -307,18 +346,20 @@ class Minimax:
             state.board.__getitem__((point2[0], point2[1])).shape == state.board.__getitem__((point3[0], point3[1])).shape and
             state.board.__getitem__((point3[0], point3[1])).shape == state.board.__getitem__((point4[0], point4[1])).shape
         ):
-            if(state.board.__getitem__((point1[0], point1[1])).shape == state.players[n_player].shape):
+            if(state.board.__getitem__((point1[0], point1[1])).shape == state.players[self.player].shape):
                 point += 10000
+            elif(state.board.__getitem__((point1[0], point1[1])).color == ShapeConstant.BLANK):
+                point += 0
             else:
                 point -= 10000
                     
         if(self.is_check4(state, point1, point2, point3, point4)):
-            if(state.board.__getitem__((point1[0], point1[1])).color == state.players[n_player].color or
-            state.board.__getitem__((point2[0], point2[1])).color == state.players[n_player].color):
+            if(state.board.__getitem__((point1[0], point1[1])).color == state.players[self.player].color or
+            state.board.__getitem__((point2[0], point2[1])).color == state.players[self.player].color):
                 point += 5
                 check_point = self.find_check(state, point1, point2, point3, point4) 
-            elif(state.board.__getitem__((point1[0], point1[1])).shape == state.players[n_player].shape or
-            state.board.__getitem__((point2[0], point2[1])).shape == state.players[n_player].shape):
+            elif(state.board.__getitem__((point1[0], point1[1])).shape == state.players[self.player].shape or
+            state.board.__getitem__((point2[0], point2[1])).shape == state.players[self.player].shape):
                 point += 5
                 check_point = self.find_check(state, point1, point2, point3, point4)
             else:
@@ -328,24 +369,39 @@ class Minimax:
             nonempty_points = list(filter(lambda point: state.board.__getitem__((point[0], point[1])).shape != ShapeConstant.BLANK, points))
             if(len(nonempty_points) == 2):
                 if(
-                    state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).color == state.board.__getitem__((nonempty_points[1][0], nonempty_points[1][1])).color and
-                    state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).color == state.players[n_player].color
+                    state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).color == state.board.__getitem__((nonempty_points[1][0], nonempty_points[1][1])).color
                 ):
-                    point += 1
+                    if(
+                        state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).color == state.players[self.player].color
+                    ):
+                        point += 3
+                    else:
+                        point -= 10
                 elif(
-                    state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).shape == state.board.__getitem__((nonempty_points[1][0], nonempty_points[1][1])).shape and
-                    state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).shape == state.players[n_player].shape
+                    state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).shape == state.board.__getitem__((nonempty_points[1][0], nonempty_points[1][1])).shape
                 ):
-                    point += 1
+                    if(
+                        state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).shape == state.players[self.player].shape
+                    ):
+                        point += 3
+                    else:
+                        point -= 10
             elif(len(nonempty_points) == 1):
                 if(
-                    state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).color == state.players[n_player].color
+                    state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).color == state.players[self.player].color
                 ):
-                    point += 1
+                    if (
+                        state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).shape == state.players[self.player].shape
+                    ):
+                        point += 2
+                    else:
+                        point += 1
                 elif(
-                    state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).shape == state.players[n_player].shape
+                    state.board.__getitem__((nonempty_points[0][0], nonempty_points[0][1])).shape == state.players[self.player].shape
                 ):
                     point += 1
+                else:
+                    point -= 1 
         return (point, check_point)
 
     def total_point(self, state: State, n_player: int):
@@ -399,9 +455,9 @@ class Minimax:
         return point
                     
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
-
+        self.player = n_player
         self.thinking_time = time() + thinking_time
 
-        best_movement = self.minimax_decision(state, n_player, 0)
+        best_movement = self.minimax_decision(state, n_player, n_player, 0, -infinity, infinity)
 
         return best_movement
