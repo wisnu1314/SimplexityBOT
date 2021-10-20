@@ -10,7 +10,7 @@ from typing import Tuple, List
 from collections import Counter
 
 
-class LocalSearch:
+class LocalSearchGroup5:
     def __init__(self):
         pass
 
