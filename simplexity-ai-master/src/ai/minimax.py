@@ -10,7 +10,7 @@ from collections import Counter
 
 from typing import Tuple, List
 
-class Minimax:
+class MinimaxGroup5:
     def __init__(self):
         self.streak_candidates_self = []
         self.streak_candidates_enemy = []
