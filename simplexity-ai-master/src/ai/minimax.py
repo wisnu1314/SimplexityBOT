@@ -207,15 +207,15 @@ class Minimax:
      # Diasumsikan titik-titik ini sudah terurut  
     def is_streak_ordered(self, point1: Tuple[int, int], point2: Tuple[int, int], point3: Tuple[int, int], point4: Tuple[int, int]):
         if(
-            is_horizontal(point1, point2) and is_horizontal(point2, point3) and is_horizontal(point3, point4)
+            self.is_horizontal(point1, point2) and self.is_horizontal(point2, point3) and self.is_horizontal(point3, point4)
         ): 
             return True
         elif(
-            is_vertikal(point1, point2) and is_vertikal(point2, point3) and is_vertikal(point3, point4)
+            self.is_vertikal(point1, point2) and self.is_vertikal(point2, point3) and self.is_vertikal(point3, point4)
         ):
             return True
         elif(
-            is_diagonal(point1, point2) and is_diagonal(point2, point3) and is_diagonal(point3, point4)
+            self.is_diagonal(point1, point2) and self.is_diagonal(point2, point3) and self.is_diagonal(point3, point4)
         ):
             return True
         else:
@@ -224,18 +224,18 @@ class Minimax:
     # is_streak tetapi bisa menerima titik yang unordered
     def is_streak(self, point1: Tuple[int, int], point2: Tuple[int, int], point3: Tuple[int, int], point4: Tuple[int, int]):
         return(
-            is_streak_ordered(point1, point2, point3, point4) or
-            is_streak_ordered(point1, point2, point4, point3) or
-            is_streak_ordered(point1, point3, point2, point4) or
-            is_streak_ordered(point1, point3, point4, point2) or
-            is_streak_ordered(point1, point4, point2, point3) or
-            is_streak_ordered(point1, point4, point3, point2) or
-            is_streak_ordered(point2, point1, point3, point4) or
-            is_streak_ordered(point2, point1, point4, point3) or
-            is_streak_ordered(point2, point3, point1, point4) or
-            is_streak_ordered(point2, point4, point1, point3) or
-            is_streak_ordered(point3, point1, point2, point4) or
-            is_streak_ordered(point3, point2, point1, point4)
+            self.is_streak_ordered(point1, point2, point3, point4) or
+            self.is_streak_ordered(point1, point2, point4, point3) or
+            self.is_streak_ordered(point1, point3, point2, point4) or
+            self.is_streak_ordered(point1, point3, point4, point2) or
+            self.is_streak_ordered(point1, point4, point2, point3) or
+            self.is_streak_ordered(point1, point4, point3, point2) or
+            self.is_streak_ordered(point2, point1, point3, point4) or
+            self.is_streak_ordered(point2, point1, point4, point3) or
+            self.is_streak_ordered(point2, point3, point1, point4) or
+            self.is_streak_ordered(point2, point4, point1, point3) or
+            self.is_streak_ordered(point3, point1, point2, point4) or
+            self.is_streak_ordered(point3, point2, point1, point4)
         )
 
     # Bernilai true ketika saat meletakkan bidak di sebuah titik, akan terbentuk double streak
@@ -243,7 +243,7 @@ class Minimax:
         num_double_streak = 0
         for streak_candidate in self.streak_candidates_self:
             (point2, point3, point4) = streak_candidate
-            if(is_streak(point, point2, point3, point4)):
+            if(self.is_streak(point, point2, point3, point4)):
                 num_double_streak += 1
         if num_double_streak > 1:
             return True

@@ -59,7 +59,6 @@ class LocalSearch:
         elif(self.is_diagonal(point1, point2) and self.is_diagonal(point2, point3) and self.is_diagonal(point3, point4)) :
             return True
         
-
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
 
